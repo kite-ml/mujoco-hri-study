@@ -1,0 +1,17 @@
+{
+  "id": "control_steer_effort",
+  "title": "Control, steerability & effort",
+  "description": "Rate your agreement with each statement about teaching the robot this way (1 = strongly disagree, 7 = strongly agree).",
+  "metadata": {
+    "instrument": "Study-defined control/steerability/effort scale (companion to NASA-TLX effort).",
+    "scale": "7-point Likert (1=strongly disagree, 7=strongly agree)",
+    "note": "Effort items are complementary to the NASA-TLX effort subscale; 'effortful' is reverse-scored so higher composite = more perceived control."
+  },
+  "items": [
+    {"id": "in_control", "prompt": "I felt in control of what the robot learned.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "control"},
+    {"id": "steer", "prompt": "I could steer the robot's behaviour toward what I wanted.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "steerability"},
+    {"id": "predictable", "prompt": "The effect of my input on the robot's behaviour was predictable.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "steerability"},
+    {"id": "express_intent", "prompt": "I could express what I wanted the robot to do.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "control"},
+    {"id": "effortful", "prompt": "Teaching the robot this way took a lot of effort.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "reverse": true, "subscale": "effort"}
+  ]
+}

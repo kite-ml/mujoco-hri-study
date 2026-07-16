@@ -1,0 +1,25 @@
+{
+  "id": "trust_scale",
+  "title": "Trust in the system",
+  "description": "Rate your agreement with each statement about the system you just worked with (1 = not at all, 7 = extremely). Administer at teach (T1), after training (T2), and at review (T3).",
+  "metadata": {
+    "instrument": "Trust between People and Automation (Jian, Bisantz & Drury, 2000)",
+    "citation": "Jian, J.-Y., Bisantz, A. M., & Drury, C. G. (2000). Foundations for an empirically determined scale of trust in automated systems. International Journal of Cognitive Ergonomics, 4(1), 53-71.",
+    "scoring": "Reverse-score the 5 distrust items, then average all 12 (or average trust and reverse-scored distrust subscales separately). Item 'familiar' is often reported separately, not in the composite.",
+    "scale": "7-point Likert (1=not at all, 7=extremely)"
+  },
+  "items": [
+    {"id": "deceptive", "prompt": "The system is deceptive.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "reverse": true, "subscale": "distrust"},
+    {"id": "underhanded", "prompt": "The system behaves in an underhanded manner.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "reverse": true, "subscale": "distrust"},
+    {"id": "suspicious", "prompt": "I am suspicious of the system's intent, action, or outputs.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "reverse": true, "subscale": "distrust"},
+    {"id": "wary", "prompt": "I am wary of the system.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "reverse": true, "subscale": "distrust"},
+    {"id": "harmful", "prompt": "The system's actions will have a harmful or injurious outcome.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "reverse": true, "subscale": "distrust"},
+    {"id": "confident", "prompt": "I am confident in the system.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "trust"},
+    {"id": "security", "prompt": "The system provides security.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "trust"},
+    {"id": "integrity", "prompt": "The system has integrity.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "trust"},
+    {"id": "dependable", "prompt": "The system is dependable.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "trust"},
+    {"id": "reliable", "prompt": "The system is reliable.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "trust"},
+    {"id": "trust", "prompt": "I can trust the system.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "trust"},
+    {"id": "familiar", "prompt": "I am familiar with the system.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "familiarity", "required": false}
+  ]
+}

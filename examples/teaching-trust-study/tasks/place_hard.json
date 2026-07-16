@@ -1,0 +1,87 @@
+{
+  "id": "place_hard",
+  "name": "Place (Hard) \u2014 3 blocks into the bin",
+  "robot": "trs_so_arm100",
+  "scene": "scenes/scene_research_place_hard.xml",
+  "success_criteria": [
+    {
+      "type": "in_region",
+      "object": "block_1",
+      "region": "bin_region",
+      "margin": 0.0,
+      "require_resting": true,
+      "rest_speed": 0.05
+    },
+    {
+      "type": "in_region",
+      "object": "block_2",
+      "region": "bin_region",
+      "margin": 0.0,
+      "require_resting": true,
+      "rest_speed": 0.05
+    },
+    {
+      "type": "in_region",
+      "object": "block_3",
+      "region": "bin_region",
+      "margin": 0.0,
+      "require_resting": true,
+      "rest_speed": 0.05
+    }
+  ],
+  "reset_randomization": {
+    "mode": "delta",
+    "objects": [
+      {
+        "object": "block_1",
+        "x": [
+          -0.015,
+          0.015
+        ],
+        "y": [
+          -0.015,
+          0.015
+        ],
+        "yaw": [
+          -0.3,
+          0.3
+        ]
+      },
+      {
+        "object": "block_2",
+        "x": [
+          -0.015,
+          0.015
+        ],
+        "y": [
+          -0.015,
+          0.015
+        ],
+        "yaw": [
+          -0.3,
+          0.3
+        ]
+      },
+      {
+        "object": "block_3",
+        "x": [
+          -0.015,
+          0.015
+        ],
+        "y": [
+          -0.015,
+          0.015
+        ],
+        "yaw": [
+          -0.3,
+          0.3
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "task": "place",
+    "variant": "hard",
+    "n_blocks": 3
+  }
+}

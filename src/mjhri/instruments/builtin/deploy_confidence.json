@@ -1,0 +1,14 @@
+{
+  "id": "deploy_confidence",
+  "title": "Deploy decision",
+  "description": "Based on what you have seen, decide whether you would deploy this policy on a real robot, and how confident you are.",
+  "metadata": {
+    "note": "The deploy decision is a key dependent variable; capture it BEFORE revealing the objective success rate.",
+    "scale": "choice + 0-100 confidence"
+  },
+  "items": [
+    {"id": "deploy", "prompt": "Would you deploy this policy on a real robot to do the task?", "kind": "choice", "options": ["Deploy", "Do not deploy"]},
+    {"id": "confidence", "prompt": "How confident are you in this decision?", "kind": "slider", "min": 0, "max": 100, "step": 1, "min_label": "Not at all confident", "max_label": "Completely confident"},
+    {"id": "expected_success", "prompt": "Out of 10 attempts, how many do you think the robot would complete successfully?", "kind": "slider", "min": 0, "max": 10, "step": 1, "min_label": "0 / 10", "max_label": "10 / 10", "required": false}
+  ]
+}

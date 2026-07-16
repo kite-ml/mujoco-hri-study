@@ -1,0 +1,64 @@
+{
+  "id": "sort_medium",
+  "name": "Sort (Medium) \u2014 2 blocks to matching bins",
+  "robot": "trs_so_arm100",
+  "scene": "scenes/scene_research_sort_medium.xml",
+  "success_criteria": [
+    {
+      "type": "in_region",
+      "object": "block_red_1",
+      "region": "bin_red_region",
+      "margin": 0.0,
+      "require_resting": true,
+      "rest_speed": 0.05
+    },
+    {
+      "type": "in_region",
+      "object": "block_blue_1",
+      "region": "bin_blue_region",
+      "margin": 0.0,
+      "require_resting": true,
+      "rest_speed": 0.05
+    }
+  ],
+  "reset_randomization": {
+    "mode": "delta",
+    "objects": [
+      {
+        "object": "block_red_1",
+        "x": [
+          -0.015,
+          0.015
+        ],
+        "y": [
+          -0.015,
+          0.015
+        ],
+        "yaw": [
+          -0.3,
+          0.3
+        ]
+      },
+      {
+        "object": "block_blue_1",
+        "x": [
+          -0.015,
+          0.015
+        ],
+        "y": [
+          -0.015,
+          0.015
+        ],
+        "yaw": [
+          -0.3,
+          0.3
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "task": "sort",
+    "variant": "medium",
+    "n_blocks": 2
+  }
+}
