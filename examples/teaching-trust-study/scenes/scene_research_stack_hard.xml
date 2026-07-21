@@ -25,31 +25,31 @@
     <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
     <camera name="overhead" pos="0 -0.12 0.45" xyaxes="1 0 0 0 1 0" fovy="55"/>
     <camera name="front" pos="0 -0.46 0.32" xyaxes="1 0 0 0 0.66 0.75" fovy="60"/>
-    <body name="block_1" pos="-0.11 -0.12 0.015">
+    <body name="block_1" pos="-0.12 -0.11 0.015">
       <freejoint/>
       <geom name="block_1_geom" type="box" size="0.015 0.015 0.015" mass="0.03" rgba="0.8 0.6 0.35 1"
         friction="1 0.01 0.0001" solimp="0.95 0.99 0.001" solref="0.005 1"/>
     </body>
-    <body name="block_2" pos="-0.055 -0.14 0.015">
+    <body name="block_2" pos="-0.12 -0.15 0.015">
       <freejoint/>
       <geom name="block_2_geom" type="box" size="0.015 0.015 0.015" mass="0.03" rgba="0.8 0.6 0.35 1"
         friction="1 0.01 0.0001" solimp="0.95 0.99 0.001" solref="0.005 1"/>
     </body>
-    <body name="block_3" pos="0.0 -0.12 0.015">
+    <body name="block_3" pos="-0.12 -0.19 0.015">
       <freejoint/>
       <geom name="block_3_geom" type="box" size="0.015 0.015 0.015" mass="0.03" rgba="0.8 0.6 0.35 1"
         friction="1 0.01 0.0001" solimp="0.95 0.99 0.001" solref="0.005 1"/>
     </body>
-    <body name="block_4" pos="0.055 -0.14 0.015">
+    <body name="block_4" pos="0.12 -0.11 0.015">
       <freejoint/>
       <geom name="block_4_geom" type="box" size="0.015 0.015 0.015" mass="0.03" rgba="0.8 0.6 0.35 1"
         friction="1 0.01 0.0001" solimp="0.95 0.99 0.001" solref="0.005 1"/>
     </body>
-    <body name="block_5" pos="0.11 -0.12 0.015">
+    <body name="block_5" pos="0.12 -0.15 0.015">
       <freejoint/>
       <geom name="block_5_geom" type="box" size="0.015 0.015 0.015" mass="0.03" rgba="0.8 0.6 0.35 1"
         friction="1 0.01 0.0001" solimp="0.95 0.99 0.001" solref="0.005 1"/>
     </body>
-    <site name="stack_zone" type="cylinder" size="0.045 0.001" pos="0.0 -0.17 0.001" rgba="0.3 0.5 0.9 0.35"/>
+    <site name="stack_zone" type="cylinder" size="0.045 0.001" pos="0.0 -0.14 0.001" rgba="0.3 0.5 0.9 0.35"/>
   </worldbody>
 </mujoco>

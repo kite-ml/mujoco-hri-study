@@ -1,25 +1,15 @@
 {
   "id": "trust_scale",
-  "title": "Trust in the system",
-  "description": "Rate your agreement with each statement about the system you just worked with (1 = not at all, 7 = extremely). Administer at teach (T1), after training (T2), and at review (T3).",
+  "title": "Trust",
+  "description": "Rate how much you agree with each statement about the robot you just worked with.",
   "metadata": {
-    "instrument": "Trust between People and Automation (Jian, Bisantz & Drury, 2000)",
-    "citation": "Jian, J.-Y., Bisantz, A. M., & Drury, C. G. (2000). Foundations for an empirically determined scale of trust in automated systems. International Journal of Cognitive Ergonomics, 4(1), 53-71.",
-    "scoring": "Reverse-score the 5 distrust items, then average all 12 (or average trust and reverse-scored distrust subscales separately). Item 'familiar' is often reported separately, not in the composite.",
-    "scale": "7-point Likert (1=not at all, 7=extremely)"
+    "instrument": "Trust in Automation (TiA) — 'Trust in Automation' subscale (items 9 & 14)",
+    "citation": "Körber, M. (2019). Theoretical considerations and development of a questionnaire to measure trust in automation. In Proceedings of the 20th Congress of the International Ergonomics Association (IEA 2018), 13-30.",
+    "scoring": "Average the two items for a Trust score. Neither item is reverse-coded.",
+    "scale": "5-point Likert (1 = Strongly disagree, 5 = Strongly agree)"
   },
   "items": [
-    {"id": "deceptive", "prompt": "The system is deceptive.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "reverse": true, "subscale": "distrust"},
-    {"id": "underhanded", "prompt": "The system behaves in an underhanded manner.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "reverse": true, "subscale": "distrust"},
-    {"id": "suspicious", "prompt": "I am suspicious of the system's intent, action, or outputs.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "reverse": true, "subscale": "distrust"},
-    {"id": "wary", "prompt": "I am wary of the system.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "reverse": true, "subscale": "distrust"},
-    {"id": "harmful", "prompt": "The system's actions will have a harmful or injurious outcome.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "reverse": true, "subscale": "distrust"},
-    {"id": "confident", "prompt": "I am confident in the system.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "trust"},
-    {"id": "security", "prompt": "The system provides security.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "trust"},
-    {"id": "integrity", "prompt": "The system has integrity.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "trust"},
-    {"id": "dependable", "prompt": "The system is dependable.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "trust"},
-    {"id": "reliable", "prompt": "The system is reliable.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "trust"},
-    {"id": "trust", "prompt": "I can trust the system.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "trust"},
-    {"id": "familiar", "prompt": "I am familiar with the system.", "kind": "likert", "min": 1, "max": 7, "step": 1, "min_label": "Not at all", "max_label": "Extremely", "subscale": "familiarity", "required": false}
+    {"id": "trust", "prompt": "I trust the robot.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "trust"},
+    {"id": "rely", "prompt": "I can rely on the robot.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "trust"}
   ]
 }
