@@ -118,10 +118,13 @@ class ProtocolEngine:
         """Effective (events, instruments) gate for a step: the phase's requirements
         plus any the run spec adds for that phase (``extra_events`` / ``extra_instruments``
         keyed by phase name) — used to place, e.g., a NASA-TLX battery once per method
-        rather than on every run."""
+        rather than on every run. A run spec with ``skip_instruments: true`` waives ALL
+        instrument gates for its steps (e.g. a demonstration/practice run)."""
         run_id, phase = self.steps[step_index]
         spec = self.assignment.task_by_condition.get(run_id, {})
         events = list(phase.requires_events) + list(spec.get("extra_events", {}).get(phase.name, []))
+        if spec.get("skip_instruments"):
+            return events, []
         insts = list(phase.requires_instruments) + list(spec.get("extra_instruments", {}).get(phase.name, []))
         return events, insts
 
