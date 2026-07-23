@@ -15,8 +15,11 @@ def test_all_builtins_load():
 
 def test_trust_scale_shape():
     inst = get_instrument("trust_scale")
-    assert len(inst.items) == 12
-    assert sum(1 for it in inst.items if it.reverse) == 5  # 5 distrust items reverse-scored
+    # TiA (Körber 2019) "Trust in Automation" subscale, items 9 & 14 only: trust + rely.
+    assert len(inst.items) == 2
+    assert {it.id for it in inst.items} == {"trust", "rely"}
+    assert all(it.min == 1 and it.max == 5 for it in inst.items)  # 5-point Likert
+    assert not any(it.reverse for it in inst.items)  # neither item is reverse-coded
 
 
 def test_validate_response_flags_missing_and_out_of_range():
