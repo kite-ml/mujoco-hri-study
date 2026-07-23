@@ -54,6 +54,12 @@ class AutoGrasp:
         # So success still depends on the policy getting the block near the goal.
         self._targets = {k: np.asarray(v, np.float64) for k, v in (place_targets or {}).items()}
         self._snap_r2 = float(snap_radius) ** 2
+        # Smoothed carry: the held block eases toward the grasp point with this time
+        # constant (s) rather than snapping — smooth pick-up/transport, but short enough
+        # that steady-state trailing doesn't spoil stacking precision at release.
+        self._carry_tau = 0.03
+        self._carry_pos = np.zeros(3)
+        self._carry_locked = False
         self._releasing: dict[str, float] = {}   # body → release time (settling)
         self._frozen: dict[str, np.ndarray] = {}  # body → frozen world position
 
@@ -107,9 +113,24 @@ class AutoGrasp:
             if best is not None:  # picking it back up unfreezes it
                 self._frozen.pop(best, None)
                 self._releasing.pop(best, None)
+                # Start the smoothed pick-up AT the block's current pose so it EASES into
+                # the gripper instead of teleporting (the visible "snap"). Once it has
+                # caught up we lock to exact tracking, so carry/placement precision is
+                # unchanged — only the initial grab is smoothed.
+                self._carry_pos = np.asarray(data.qpos[self._grasp[best]:self._grasp[best] + 3], np.float64).copy()
+                self._carry_locked = False
         if self._held is not None:  # carry it
             q = self._grasp[self._held]
-            data.qpos[q:q + 3] = gp
+            if self._carry_locked:
+                self._carry_pos = gp
+            else:
+                dt = float(getattr(model.opt, "timestep", 0.002))
+                alpha = 1.0 - np.exp(-dt / self._carry_tau)
+                self._carry_pos = self._carry_pos + alpha * (gp - self._carry_pos)
+                if float(np.sum((self._carry_pos - gp) ** 2)) < 9e-6:  # within 3 mm → lock
+                    self._carry_pos = gp
+                    self._carry_locked = True
+            data.qpos[q:q + 3] = self._carry_pos
             data.qpos[q + 3:q + 7] = [1.0, 0.0, 0.0, 0.0]
             data.qvel[self._dof(model, self._held):self._dof(model, self._held) + 6] = 0.0
 

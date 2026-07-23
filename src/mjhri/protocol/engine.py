@@ -124,6 +124,9 @@ class ProtocolEngine:
         spec = self.assignment.task_by_condition.get(run_id, {})
         events = list(phase.requires_events) + list(spec.get("extra_events", {}).get(phase.name, []))
         if spec.get("skip_instruments"):
+            # A survey-free run (demo/practice): also waive the decision events that are
+            # normally emitted BY a questionnaire — otherwise the step can never advance.
+            events = [e for e in events if e != "deploy_decision"]
             return events, []
         insts = list(phase.requires_instruments) + list(spec.get("extra_instruments", {}).get(phase.name, []))
         return events, insts
