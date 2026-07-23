@@ -1,0 +1,22 @@
+{
+  "id": "sus",
+  "title": "System Usability Scale",
+  "description": "Rate your agreement with each statement about teaching the robot this way (1 = strongly disagree, 5 = strongly agree).",
+  "metadata": {
+    "instrument": "System Usability Scale (Brooke 1996), 10 items, alternating tone.",
+    "scale": "5-point Likert (1=strongly disagree, 5=strongly agree)",
+    "note": "Standard SUS scoring: odd items score (x-1), even items score (5-x); sum x 2.5 gives the 0-100 SUS score. Even items are flagged reverse=true."
+  },
+  "items": [
+    {"id": "sus_1", "prompt": "I think that I would like to use this teaching method frequently.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "usability"},
+    {"id": "sus_2", "prompt": "I found this teaching method unnecessarily complex.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "reverse": true, "subscale": "usability"},
+    {"id": "sus_3", "prompt": "I thought this teaching method was easy to use.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "usability"},
+    {"id": "sus_4", "prompt": "I think that I would need the support of a technical person to be able to use this teaching method.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "reverse": true, "subscale": "usability"},
+    {"id": "sus_5", "prompt": "I found the various functions in this teaching method were well integrated.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "usability"},
+    {"id": "sus_6", "prompt": "I thought there was too much inconsistency in this teaching method.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "reverse": true, "subscale": "usability"},
+    {"id": "sus_7", "prompt": "I would imagine that most people would learn to use this teaching method very quickly.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "usability"},
+    {"id": "sus_8", "prompt": "I found this teaching method very cumbersome to use.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "reverse": true, "subscale": "usability"},
+    {"id": "sus_9", "prompt": "I felt very confident using this teaching method.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "usability"},
+    {"id": "sus_10", "prompt": "I needed to learn a lot of things before I could get going with this teaching method.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "reverse": true, "subscale": "usability"}
+  ]
+}
