@@ -14,12 +14,14 @@ the task's :class:`~mjhri.tasks.scorer.Scorer`).
 """
 
 from .controller import PickPlaceController, PickPlaceParams
+from .grasp import AutoGrasp
 from .imitation import NearestStatePolicy
 from .optimize import cem_optimize
 from .plan import plan_from_demo, plan_from_taskspec
 from .rollout import rollout_once, score_policy
 
 __all__ = [
+    "AutoGrasp",
     "PickPlaceController",
     "PickPlaceParams",
     "NearestStatePolicy",
