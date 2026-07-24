@@ -18,7 +18,7 @@ from .grasp import AutoGrasp
 from .imitation import NearestStatePolicy
 from .optimize import cem_optimize
 from .plan import plan_from_demo, plan_from_taskspec
-from .rollout import rollout_once, score_policy
+from .rollout import rollout_metrics, rollout_once, score_policy
 
 __all__ = [
     "AutoGrasp",
@@ -28,6 +28,7 @@ __all__ = [
     "cem_optimize",
     "plan_from_demo",
     "plan_from_taskspec",
+    "rollout_metrics",
     "rollout_once",
     "score_policy",
 ]
