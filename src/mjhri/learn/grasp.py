@@ -30,6 +30,7 @@ class AutoGrasp:
         graspable_bodies: Optional[Sequence[str]] = None,
         close_below: float = 0.5,
         radius: float = 0.05,
+        radius_z: Optional[float] = None,
         hold_placed: bool = True,
         settle_delay: float = 0.25,
         place_targets: Optional[dict] = None,
@@ -43,7 +44,14 @@ class AutoGrasp:
         self._grip_ci = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_ACTUATOR, gripper_actuator)
         self._off = np.asarray(ee_offset, np.float64)
         self._close_below = float(close_below)
-        self._r2 = float(radius) ** 2
+        # ANISOTROPIC grasp reach: ``radius`` is the HORIZONTAL (xy) tolerance — kept
+        # tight so a close neighbour block isn't grabbed by mistake — while ``radius_z``
+        # is the VERTICAL tolerance, made larger because the arm's pads bottom out a few
+        # cm above a floor-height block (only full-IK wrist-bending dips lower). A block
+        # is grabbed when ``(dxy/radius)² + (dz/radius_z)² < 1``. Defaults to isotropic.
+        self._rxy = float(radius)
+        self._rz = float(radius_z) if radius_z is not None else float(radius)
+        self._r2 = float(radius) ** 2  # kept for any external reference
         # Once a block is released it settles for ``settle_delay`` then FREEZES where it
         # landed, so a later carry can't knock a finished stack over. Re-grasping unfreezes
         # it. Harmless for place/sort (blocks freeze resting in their bin).
@@ -104,11 +112,12 @@ class AutoGrasp:
                 self._releasing[b] = t              # otherwise settle then freeze where it lands
             self._held = None
         if closed and self._held is None:  # look for an object to grab (frozen ones too)
-            best, bd = None, self._r2
+            best, bd = None, 1.0  # normalized ellipsoid metric; grab if < 1
             for name, q in self._grasp.items():
-                d2 = float(np.sum((data.qpos[q:q + 3] - gp) ** 2))
-                if d2 < bd:
-                    best, bd = name, d2
+                dp = data.qpos[q:q + 3] - gp
+                metric = float((dp[0] ** 2 + dp[1] ** 2) / self._rxy ** 2 + dp[2] ** 2 / self._rz ** 2)
+                if metric < bd:
+                    best, bd = name, metric
             self._held = best
             if best is not None:  # picking it back up unfreezes it
                 self._frozen.pop(best, None)
