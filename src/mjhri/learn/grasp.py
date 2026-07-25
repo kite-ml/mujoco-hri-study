@@ -68,19 +68,29 @@ class AutoGrasp:
         # it. Harmless for place/sort (blocks freeze resting in their bin).
         self._hold_placed = bool(hold_placed)
         self._settle_delay = float(settle_delay)
-        # If a block is released within ``snap_radius`` of its intended target it LOCKS
-        # there (clean placement / a stable tower); released far, it just drops (a miss).
-        # So success still depends on the policy getting the block near the goal.
+        # If a block is released near its intended target it GLIDES there (clean
+        # placement / a stable tower); released far, it just drops (a miss). The catch
+        # is ANISOTROPIC: tight horizontally (accuracy still matters) but generous
+        # vertically — a block dropped from straight above the goal is clearly "on
+        # target" even if let go high, which tall stacks do routinely.
         self._targets = {k: np.asarray(v, np.float64) for k, v in (place_targets or {}).items()}
         self._snap_r2 = float(snap_radius) ** 2
+        self._snap_z = max(0.10, 2.0 * float(snap_radius))
         # Smoothed carry: the held block eases toward the grasp point with this time
         # constant (s) rather than snapping — smooth pick-up/transport, but short enough
         # that steady-state trailing doesn't spoil stacking precision at release.
         self._carry_tau = 0.03
         self._carry_pos = np.zeros(3)
         self._carry_locked = False
+        self._glide_time = 0.15                   # snap-to-target ease duration (s)
         self._releasing: dict[str, float] = {}   # body → release time (settling)
         self._frozen: dict[str, np.ndarray] = {}  # body → frozen world position
+        self._gliding: dict[str, tuple] = {}      # body → (start, target, t0) snap-glide
+        # Blocks deliberately placed AT their target are done — excluded from the pick
+        # search so a policy's trailing actions (a closing jaw hovering over the tower)
+        # can't pluck the top block back off. Only populated when place_targets exist,
+        # so free-form teleop (no targets) can always re-grab anything.
+        self._placed: set[str] = set()
 
         # graspable = free-joint bodies (auto-detected unless named)
         self._grasp: dict[str, int] = {}
@@ -119,14 +129,21 @@ class AutoGrasp:
         if not closed and self._held is not None:  # release
             b = self._held
             tgt = self._targets.get(b)
-            if tgt is not None and float(np.sum((data.qpos[self._grasp[b]:self._grasp[b] + 3] - tgt) ** 2)) < self._snap_r2:
-                self._frozen[b] = tgt.copy()        # released near the goal → lock at it
+            dp = (data.qpos[self._grasp[b]:self._grasp[b] + 3] - tgt) if tgt is not None else None
+            if dp is not None and float(dp[0] ** 2 + dp[1] ** 2) < self._snap_r2 and abs(float(dp[2])) < self._snap_z:
+                # Released near the goal → GLIDE it there over ~0.3 s instead of
+                # teleporting (the instant lock read as a violent, unnatural force,
+                # worst when stacking). Frozen at the target once the glide lands.
+                start = np.asarray(data.qpos[self._grasp[b]:self._grasp[b] + 3], np.float64).copy()
+                self._gliding[b] = (start, tgt.copy(), t)
             elif self._hold_placed:
                 self._releasing[b] = t              # otherwise settle then freeze where it lands
             self._held = None
         if closed and self._held is None:  # look for an object to grab (frozen ones too)
             best, bd = None, 1.0  # normalized ellipsoid metric; grab if < 1
             for name, q in self._grasp.items():
+                if name in self._gliding or name in self._placed:
+                    continue                     # mid-glide or already placed — not re-grabbable
                 dp = data.qpos[q:q + 3] - gp
                 metric = float((dp[0] ** 2 + dp[1] ** 2) / self._rxy ** 2 + dp[2] ** 2 / self._rz ** 2)
                 if metric < bd:
@@ -135,6 +152,7 @@ class AutoGrasp:
             if best is not None:  # picking it back up unfreezes it
                 self._frozen.pop(best, None)
                 self._releasing.pop(best, None)
+                self._gliding.pop(best, None)
                 # Start the smoothed pick-up AT the block's current pose so it EASES into
                 # the gripper instead of teleporting (the visible "snap"). Once it has
                 # caught up we lock to exact tracking, so carry/placement precision is
@@ -156,11 +174,31 @@ class AutoGrasp:
             data.qpos[q + 3:q + 7] = [1.0, 0.0, 0.0, 0.0]
             data.qvel[self._dof(model, self._held):self._dof(model, self._held) + 6] = 0.0
 
+        # Snap-glide: ease released-near-goal blocks to their target, then freeze there.
+        for name, (start, tgt, t0) in list(self._gliding.items()):
+            q = self._grasp[name]
+            frac = min(1.0, (t - t0) / self._glide_time)
+            s = frac * frac * (3.0 - 2.0 * frac)                  # smoothstep ease
+            data.qpos[q:q + 3] = start + s * (tgt - start)
+            data.qvel[self._dof(model, name):self._dof(model, name) + 6] = 0.0
+            if frac >= 1.0:
+                del self._gliding[name]
+                self._placed.add(name)
+                if self._hold_placed:
+                    self._frozen[name] = tgt.copy()
+
         if self._hold_placed:  # settle → freeze placed blocks; pin frozen ones
             for name, tr in list(self._releasing.items()):
+                # Freeze only once the block has actually COME TO REST (or after a
+                # 1.5 s cap) — freezing on a fixed timer used to pin blocks mid-bounce,
+                # visibly hovering or intersecting a neighbour.
                 if t - tr >= self._settle_delay:
-                    self._frozen[name] = np.asarray(data.qpos[self._grasp[name]:self._grasp[name] + 3], np.float64).copy()
-                    del self._releasing[name]
+                    dof = self._dof(model, name)
+                    speed = float(np.linalg.norm(data.qvel[dof:dof + 3]))
+                    if speed < 0.05 or t - tr >= 1.5:
+                        self._frozen[name] = np.asarray(
+                            data.qpos[self._grasp[name]:self._grasp[name] + 3], np.float64).copy()
+                        del self._releasing[name]
             for name, pos in self._frozen.items():
                 q = self._grasp[name]
                 data.qpos[q:q + 3] = pos
@@ -170,3 +208,5 @@ class AutoGrasp:
         self._held = None
         self._releasing.clear()
         self._frozen.clear()
+        self._gliding.clear()
+        self._placed.clear()
