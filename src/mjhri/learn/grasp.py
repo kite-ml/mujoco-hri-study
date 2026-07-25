@@ -35,6 +35,7 @@ class AutoGrasp:
         settle_delay: float = 0.25,
         place_targets: Optional[dict] = None,
         snap_radius: float = 0.045,
+        grasp_point_geoms: Optional[Sequence[str]] = None,
     ):
         import mujoco
 
@@ -43,6 +44,16 @@ class AutoGrasp:
         self._ee_bid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, ee_body)
         self._grip_ci = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_ACTUATOR, gripper_actuator)
         self._off = np.asarray(ee_offset, np.float64)
+        # Optional EXACT grasp point: the centroid of these geoms (e.g. the finger pads).
+        # A fixed body offset points away from the fingers once the wrist tilts — the
+        # invisible attach point then lands centimeters from where the gripper visibly
+        # is, so closing "on" an object does nothing. The pad centroid is correct in
+        # every orientation.
+        self._gp_gids = []
+        for name in (grasp_point_geoms or []):
+            gid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, name)
+            if gid >= 0:
+                self._gp_gids.append(int(gid))
         self._close_below = float(close_below)
         # ANISOTROPIC grasp reach: ``radius`` is the HORIZONTAL (xy) tolerance — kept
         # tight so a close neighbour block isn't grabbed by mistake — while ``radius_z``
@@ -89,6 +100,8 @@ class AutoGrasp:
         self._held: Optional[str] = None
 
     def _grasp_point(self, data: Any) -> np.ndarray:
+        if self._gp_gids:
+            return np.mean(np.asarray(data.geom_xpos)[self._gp_gids], axis=0)
         mj = self._mj
         off = np.zeros(3)
         mj.mju_rotVecQuat(off, self._off, data.xquat[self._ee_bid])
