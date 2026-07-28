@@ -1,15 +1,16 @@
 {
   "id": "trust_scale",
   "title": "Trust",
-  "description": "Rate how much you agree with each statement about the robot you just worked with.",
+  "description": "Thinking about the robot doing THIS task with what you just taught it, rate how much you agree with each statement.",
   "metadata": {
-    "instrument": "Trust in Automation (TiA) — 'Trust in Automation' subscale (items 9 & 14)",
+    "instrument": "Trust in Automation (TiA) — 'Trust in Automation' subscale (items 9 & 14), ADAPTED",
     "citation": "Körber, M. (2019). Theoretical considerations and development of a questionnaire to measure trust in automation. In Proceedings of the 20th Congress of the International Ergonomics Association (IEA 2018), 13-30.",
+    "adaptation": "Item stems are anchored to the taught task ('…to do this task successfully' / '…to do this task correctly') instead of the generic 'the robot'. Bare TiA wording was ambiguous here: a participant who had only set reward sliders could not tell what 'I trust the robot' referred to. Report as adapted from Körber (2019).",
     "scoring": "Average the two items for a Trust score. Neither item is reverse-coded.",
     "scale": "5-point Likert (1 = Strongly disagree, 5 = Strongly agree)"
   },
   "items": [
-    {"id": "trust", "prompt": "I trust the robot.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "trust"},
-    {"id": "rely", "prompt": "I can rely on the robot.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "trust"}
+    {"id": "trust", "prompt": "I trust this robot to do this task successfully.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "trust"},
+    {"id": "rely", "prompt": "I can rely on this robot to do this task correctly, without me stepping in.", "kind": "likert", "min": 1, "max": 5, "step": 1, "min_label": "Strongly disagree", "max_label": "Strongly agree", "subscale": "trust"}
   ]
 }
