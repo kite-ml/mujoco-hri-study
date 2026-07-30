@@ -1,24 +1,29 @@
 {
   "id": "attention_check_1",
-  "title": "One more statement",
-  "description": "Rate your agreement with the statement below (1 = strongly disagree, 7 = strongly agree).",
+  "title": "About the trial you just finished",
+  "description": "Please answer from what you actually did on this trial.",
   "metadata": {
-    "instrument": "Instructed-response attention check (IRI).",
-    "scale": "7-point Likert, matching control_steer_effort so it reads as part of the battery",
-    "note": "Scored by exact match on `correct_response`. The target is a NON-EXTREME value on purpose: a participant straight-lining 1s or 7s fails, which an 'always pick strongly disagree' check would not catch.",
-    "correct_response": 2,
-    "check_kind": "instructed_response"
+    "instrument": "Content-based attention check doubling as a manipulation check.",
+    "check_kind": "content_manipulation",
+    "citation": "Prolific (2024), Attention and comprehension check policy — task-relevant checks preferred over generic traps; Meade & Craig (2012), Identifying careless responses in survey data, Psychological Methods 17(3), 437-455; Berinsky, Margolis & Sances (2014), Separating the shirkers from the workers?, AJPS 58(3), 739-753.",
+    "option_modality": {
+      "I drove the robot myself using the keyboard": "teleop",
+      "I set sliders describing what mattered": "reward_spec",
+      "I typed a sentence describing the task": "description"
+    },
+    "note": "The fourth option is a lure and is never correct. Scored against the trial's assigned modality, so the answer varies by trial and by participant."
   },
   "items": [
     {
       "id": "attn",
-      "prompt": "This question checks that you are still reading. Please select 2 (\u201cDisagree\u201d) for this item.",
-      "kind": "likert",
-      "min": 1,
-      "max": 7,
-      "step": 1,
-      "min_label": "Strongly disagree",
-      "max_label": "Strongly agree",
+      "prompt": "How did you teach the robot on this trial?",
+      "kind": "choice",
+      "options": [
+        "I drove the robot myself using the keyboard",
+        "I set sliders describing what mattered",
+        "I typed a sentence describing the task",
+        "I did not teach the robot on this trial"
+      ],
       "subscale": "attention_check",
       "required": true
     }
