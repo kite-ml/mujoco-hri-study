@@ -1,0 +1,26 @@
+{
+  "id": "attention_check_1",
+  "title": "One more statement",
+  "description": "Rate your agreement with the statement below (1 = strongly disagree, 7 = strongly agree).",
+  "metadata": {
+    "instrument": "Instructed-response attention check (IRI).",
+    "scale": "7-point Likert, matching control_steer_effort so it reads as part of the battery",
+    "note": "Scored by exact match on `correct_response`. The target is a NON-EXTREME value on purpose: a participant straight-lining 1s or 7s fails, which an 'always pick strongly disagree' check would not catch.",
+    "correct_response": 2,
+    "check_kind": "instructed_response"
+  },
+  "items": [
+    {
+      "id": "attn",
+      "prompt": "This question checks that you are still reading. Please select 2 (\u201cDisagree\u201d) for this item.",
+      "kind": "likert",
+      "min": 1,
+      "max": 7,
+      "step": 1,
+      "min_label": "Strongly disagree",
+      "max_label": "Strongly agree",
+      "subscale": "attention_check",
+      "required": true
+    }
+  ]
+}
