@@ -165,6 +165,13 @@ class PickPlaceController:
             seg(p.t_lift, above_g, p.grip_closed, body)
             seg(p.t_transport, above_p, p.grip_closed, body)
             seg(p.t_place, at_p, p.grip_closed, body)
+            # Open the jaw WHILE STATIONARY at the target, then withdraw. Previously the
+            # release segment opened the gripper and rose to `above_p` in one motion: the
+            # jaw needs time to physically clear the block, so by the time it did the
+            # gripper had already climbed ~4 cm and the block was DROPPED rather than
+            # placed. It then bounced and rolled 2-8 cm, which is why unaided placement
+            # error was ~4.6 cm against a 2 cm stacking tolerance.
+            seg(p.t_release, at_p, p.grip_open, None)
             seg(p.t_release, above_p, p.grip_open, None)
         seg(0.5, self._home, p.grip_open, None)
         self._segs, self._place_of = segs, place_of
