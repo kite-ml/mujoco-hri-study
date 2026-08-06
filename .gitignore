@@ -5,3 +5,10 @@ dist/
 build/
 .pytest_cache/
 .venv/
+
+# Robot meshes fetched from MuJoCo Menagerie by
+# examples/teaching-trust-study/fetch_assets.py — not vendored, see that script.
+examples/teaching-trust-study/scenes/so_arm100.xml
+examples/teaching-trust-study/scenes/so_arm100_LICENSE
+examples/teaching-trust-study/scenes/so_arm100_README.md
+examples/teaching-trust-study/scenes/assets/

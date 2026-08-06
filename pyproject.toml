@@ -10,18 +10,35 @@ readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10"
 authors = [{ name = "Kite ML" }]
+keywords = [
+    "hri", "human-robot-interaction", "mujoco", "robotics", "experiment",
+    "psychophysics", "counterbalancing", "research", "simulation", "trust",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Human Machine Interfaces",
     "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
 ]
 dependencies = [
     "mujoco>=3.0",
     "numpy>=1.24",
     "pydantic>=2.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/kite-ml/mujoco-hri-study"
+Repository = "https://github.com/kite-ml/mujoco-hri-study"
+Issues = "https://github.com/kite-ml/mujoco-hri-study/issues"
+Roadmap = "https://github.com/kite-ml/mujoco-hri-study/blob/main/ROADMAP.md"
 
 [project.optional-dependencies]
 lerobot = ["lerobot>=0.4"]

@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: "mujoco-hri-study: an experiment engine for human-robot interaction studies in MuJoCo"
+message: "If you use this software in published research, please cite it."
+type: software
+authors:
+  - name: "Kite ML"
+    website: "https://kiteml.com"
+repository-code: "https://github.com/kite-ml/mujoco-hri-study"
+abstract: >-
+  mjhri is an experiment engine for human-robot interaction studies run in MuJoCo.
+  A study is expressed as data — conditions, phase sequences, counterbalancing,
+  survey instruments, tasks and geometric success criteria — and the engine walks
+  participants through the protocol while recording an event log that doubles as
+  the analysis dataset. It provides Williams-square counterbalancing, event-sourced
+  protocol state with crash/refresh resume, renderer-agnostic survey instruments,
+  scene-agnostic task scoring, keyboard teleoperation with damped-least-squares IK,
+  and a dependency-light learning stack for closed-loop robot-teaching studies.
+keywords:
+  - human-robot interaction
+  - MuJoCo
+  - robotics
+  - experiment design
+  - counterbalancing
+  - trust in automation
+license: Apache-2.0
+version: 0.1.0

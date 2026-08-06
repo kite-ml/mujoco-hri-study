@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: py${{ matrix.python }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.10", "3.11", "3.12", "3.13"]
+        include:
+          - os: macos-latest
+            python: "3.12"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: Install
+        run: pip install -e ".[dev]"
+
+      # The study scenes <include> an arm from MuJoCo Menagerie that we do not
+      # vendor. Without it the scene-backed tests skip; fetching keeps them honest.
+      - name: Fetch robot assets
+        run: python examples/teaching-trust-study/fetch_assets.py
+
+      - name: Test
+        run: pytest -q
+
+      - name: Quickstart runs end to end
+        run: python examples/quickstart.py
+
+  import-without-mujoco:
+    # The core (protocol/events/instruments) claims to need only pydantic. Prove it:
+    # if anything leaks a top-level mujoco import, this job fails.
+    name: core imports without mujoco
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pydantic
+      - run: pip install --no-deps -e .
+      - run: |
+          python - <<'PY'
+          import sys
+          import mjhri
+          from mjhri import ProtocolEngine, StudyProtocol, assign, summarize
+          from mjhri.robots import SO_ARM100
+          assert "mujoco" not in sys.modules, "mjhri imported mujoco at import time"
+          assert "numpy" not in sys.modules, "mjhri imported numpy at import time"
+          print("core import surface is clean:", mjhri.__version__)
+          PY
+
+  build:
+    name: build + metadata check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install build twine
+      - run: python -m build
+      - run: twine check dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/

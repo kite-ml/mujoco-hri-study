@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 560" width="980" height="560"
+     font-family="ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+    <style>
+      .t  { fill: #e2e8f0; font-size: 14px; font-weight: 600; }
+      .h  { fill: #94a3b8; font-size: 11px; font-weight: 700; letter-spacing: .09em; }
+      .s  { fill: #94a3b8; font-size: 12px; }
+      .m  { fill: #94a3b8; font-size: 11.5px; font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      .k  { fill: #93c5fd; font-size: 12.5px; font-weight: 600;
+             font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      .ln { stroke: #64748b; stroke-width: 1.6; fill: none; marker-end: url(#a); }
+      .box{ fill: #1e293b; stroke: #334155; stroke-width: 1.3; rx: 10; }
+      .our{ fill: #1e3a5f; stroke: #3b82f6; stroke-width: 1.6; rx: 10; }
+    </style>
+  </defs>
+
+  <!-- ── column headings ─────────────────────────────────────────── -->
+  <text class="h" x="26"  y="34">YOU DEFINE — DATA</text>
+  <text class="h" x="366" y="34">mjhri — THE ENGINE</text>
+  <text class="h" x="726" y="34">YOU SUPPLY — UI</text>
+
+  <!-- ── left: study definition ──────────────────────────────────── -->
+  <rect class="box" x="26" y="50" width="290" height="196"/>
+  <text class="t" x="46" y="78">A study is data, not code</text>
+  <text class="k" x="46" y="104">StudyProtocol</text>
+  <text class="s" x="46" y="122">conditions · phases · gates</text>
+  <text class="k" x="46" y="148">TaskSpec</text>
+  <text class="s" x="46" y="166">scene XML · success criteria</text>
+  <text class="k" x="46" y="192">Instrument</text>
+  <text class="s" x="46" y="210">survey items as JSON</text>
+  <text class="s" x="46" y="232">New study ⇒ new data, no new code.</text>
+
+  <!-- ── middle top: assignment ──────────────────────────────────── -->
+  <rect class="our" x="366" y="50" width="290" height="86"/>
+  <text class="k" x="386" y="76">assign(participant_id)</text>
+  <text class="s" x="386" y="96">Williams square — balances order</text>
+  <text class="s" x="386" y="114">and first-order carryover</text>
+
+  <!-- ── middle: protocol engine ─────────────────────────────────── -->
+  <rect class="our" x="366" y="156" width="290" height="120"/>
+  <text class="k" x="386" y="182">ProtocolEngine</text>
+  <text class="s" x="386" y="202">Holds no state. Derives the current</text>
+  <text class="s" x="386" y="220">phase from the log every call, so a</text>
+  <text class="s" x="386" y="238">refresh or crash resumes exactly.</text>
+  <text class="s" x="386" y="262">Gates block advancing until met.</text>
+
+  <!-- ── right: host ─────────────────────────────────────────────── -->
+  <rect class="box" x="726" y="50" width="228" height="226"/>
+  <text class="t" x="746" y="78">Your renderer</text>
+  <text class="s" x="746" y="102">Web app, native runner,</text>
+  <text class="s" x="746" y="120">notebook — anything.</text>
+  <text class="s" x="746" y="150">It asks the engine what</text>
+  <text class="s" x="746" y="168">phase this is, draws it,</text>
+  <text class="s" x="746" y="186">and reports what the</text>
+  <text class="s" x="746" y="204">participant did.</text>
+  <text class="s" x="746" y="236">mjhri ships no UI and</text>
+  <text class="s" x="746" y="254">sends no telemetry.</text>
+
+  <!-- ── the log ─────────────────────────────────────────────────── -->
+  <rect class="our" x="308" y="322" width="406" height="96"/>
+  <text class="k" x="330" y="350">EventLog</text>
+  <text class="t" x="330" y="374">The log is the dataset</text>
+  <text class="s" x="330" y="396">JSONL · SQLite · implement it over your own store</text>
+
+  <!-- ── outputs ─────────────────────────────────────────────────── -->
+  <rect class="box" x="26" y="454" width="290" height="82"/>
+  <text class="k" x="46" y="480">measures · export</text>
+  <text class="s" x="46" y="500">Phase durations, effort counts,</text>
+  <text class="s" x="46" y="518">time-to-deployable → CSV.</text>
+
+  <rect class="box" x="366" y="454" width="290" height="82"/>
+  <text class="k" x="386" y="480">tasks.Scorer</text>
+  <text class="s" x="386" y="500">Geometric success on any MuJoCo</text>
+  <text class="s" x="386" y="518">scene: in_region, stack.</text>
+
+  <rect class="box" x="706" y="454" width="248" height="82"/>
+  <text class="k" x="726" y="480">learn · teleop</text>
+  <text class="s" x="726" y="500">Teach a policy and score it.</text>
+  <text class="s" x="726" y="518">numpy + mujoco, no torch.</text>
+
+  <!-- ── wiring ──────────────────────────────────────────────────── -->
+  <path class="ln" d="M316,120 L360,120"/>
+  <path class="ln" d="M511,136 L511,150"/>
+  <path class="ln" d="M660,190 L720,190"/>
+  <path class="ln" d="M720,222 L660,222"/>
+  <path class="ln" d="M511,276 L511,316"/>
+  <path class="ln" d="M420,418 L340,448"/>
+  <path class="ln" d="M511,418 L511,448"/>
+  <path class="ln" d="M602,418 L700,448"/>
+  <text class="m" x="524" y="302">every moment appended</text>
+</svg>
