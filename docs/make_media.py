@@ -14,6 +14,7 @@ not a caption.
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 import mujoco
@@ -29,11 +30,16 @@ ROOT = Path(__file__).resolve().parent.parent
 STUDY = ROOT / "examples" / "teaching-trust-study"
 OUT = ROOT / "docs" / "media"
 
-W, H = 560, 460
-# Azimuth 70 looks at the arm's FRONT — the side the gripper opens toward and the
-# side the task objects are laid out on. The opposite view (250) frames the same
-# scene but from behind the shoulder, where the wrist housings hide the jaws.
-CAM = dict(azimuth=70, elevation=-34, distance=0.60, lookat=(0.0, -0.12, 0.04))
+#: Filmstrip panels. Landscape, because the frame has to hold the arm's whole
+#: horizontal sweep — a squarer panel just adds empty floor above and below it.
+W, H = 700, 470
+# True isometric: an orthographic projection at 45° azimuth and the isometric
+# elevation, atan(1/√2) ≈ 35.264°, which is what makes the floor grid read as even
+# diamonds and keeps equal lengths equal anywhere in frame. Azimuth 45 puts the
+# gripper's opening toward the viewer with the task objects unobstructed; the other
+# three isometric azimuths hide either the jaws or the objects behind the arm.
+ISO_AZIMUTH = 45.0
+ISO_ELEVATION = -math.degrees(math.atan(1 / math.sqrt(2)))
 # The pose the arm holds while a scene is shown at rest — the same ready pose the
 # controller seeds its IK from, so a still frame matches where a rollout starts.
 READY = dict(zip(SO_ARM100.arm_joints, SO_ARM100.ready_arm or ()))
@@ -62,19 +68,65 @@ def load(task_id: str):
     return spec, model
 
 
-def camera(**over):
+def visible_bounds(model, data):
+    """World AABB of what will actually be drawn.
+
+    Skips the ground plane (infinite, would swallow any framing) and the collision
+    hulls, which are group 3 and invisible but sit outside the visual meshes.
+    """
+    lo = np.full(3, np.inf)
+    hi = np.full(3, -np.inf)
+    for g in range(model.ngeom):
+        if model.geom_type[g] == mujoco.mjtGeom.mjGEOM_PLANE:
+            continue
+        if model.geom_rgba[g][3] == 0 or model.geom_group[g] == 3:
+            continue
+        radius = float(np.max(model.geom_size[g])) or 0.01
+        lo = np.minimum(lo, data.geom_xpos[g] - radius)
+        hi = np.maximum(hi, data.geom_xpos[g] + radius)
+    return lo, hi
+
+
+def iso_camera(model, lo, hi, size, pad=1.06):
+    """An isometric camera framed to contain ``lo``..``hi`` exactly.
+
+    MuJoCo reads ``vis.global_.fovy`` as **degrees for a perspective camera but a
+    length for an orthographic one** — it is the height of the view volume in metres,
+    and it is what sets the zoom. ``cam.distance`` only positions the camera (so it
+    still governs near/far clipping); changing it does not scale an ortho image.
+
+    The fit is exact rather than a guess: project the eight corners of the box onto
+    the camera's own axes and take the extremes, so nothing lands outside the frame.
+    """
+    model.vis.global_.orthographic = 1
+    center = (lo + hi) / 2
+
+    a, e = math.radians(ISO_AZIMUTH), math.radians(ISO_ELEVATION)
+    forward = np.array([math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
+    right = np.cross(forward, [0.0, 0.0, 1.0])
+    right /= np.linalg.norm(right)
+    up = np.cross(right, forward)
+
+    corners = np.array([[x, y, z] for x in (lo[0], hi[0])
+                        for y in (lo[1], hi[1]) for z in (lo[2], hi[2])]) - center
+    half_w = float(np.max(np.abs(corners @ right)))
+    half_h = float(np.max(np.abs(corners @ up)))
+    aspect = size[0] / size[1]
+    model.vis.global_.fovy = max(2 * half_h, 2 * half_w / aspect) * pad
+
     cam = mujoco.MjvCamera()
     mujoco.mjv_defaultCamera(cam)
-    cfg = {**CAM, **over}
-    cam.azimuth, cam.elevation, cam.distance = cfg["azimuth"], cfg["elevation"], cfg["distance"]
-    cam.lookat[:] = cfg["lookat"]
+    cam.azimuth, cam.elevation = ISO_AZIMUTH, ISO_ELEVATION
+    cam.lookat[:] = center
+    cam.distance = float(np.max(hi - lo)) * 4      # clear of the scene; not a zoom
     return cam
 
 
 # -- still frames of each task ------------------------------------------------
 
 
-def still(task_id: str, size=(900, 620), **cam_over) -> Image.Image:
+def settled(task_id: str):
+    """The scene at rest with the arm in its ready pose."""
     _spec, model = load(task_id)
     data = mujoco.MjData(model)
     for name, q in READY.items():
@@ -87,14 +139,28 @@ def still(task_id: str, size=(900, 620), **cam_over) -> Image.Image:
     mujoco.mj_forward(model, data)
     for _ in range(400):
         mujoco.mj_step(model, data)
+    return model, data
+
+
+def still(task_id: str, size=(760, 640), bounds=None) -> Image.Image:
+    model, data = settled(task_id)
+    lo, hi = bounds if bounds is not None else visible_bounds(model, data)
+    cam = iso_camera(model, lo, hi, size)
     with mujoco.Renderer(model, height=size[1], width=size[0]) as r:
-        r.update_scene(data, camera=camera(**cam_over))
+        r.update_scene(data, camera=cam)
         return Image.fromarray(r.render())
 
 
 def task_strip(task_ids, labels, name="tasks.png", width=1400):
-    imgs = [still(t, azimuth=70, elevation=-38, distance=0.66,
-                  lookat=(0.0, -0.13, 0.03)) for t in task_ids]
+    # One frame shared by every panel. Framed individually, a task with a tighter
+    # layout would be drawn larger, and the tasks would stop being comparable at a
+    # glance — the blocks are the same size in all three, so they must look it.
+    lo = np.full(3, np.inf)
+    hi = np.full(3, -np.inf)
+    for t in task_ids:
+        a, b = visible_bounds(*settled(t))
+        lo, hi = np.minimum(lo, a), np.maximum(hi, b)
+    imgs = [still(t, bounds=(lo, hi)) for t in task_ids]
     w, h, pad, cap = imgs[0].width, imgs[0].height, 8, 34
     strip = Image.new("RGB", (w * len(imgs) + pad * (len(imgs) - 1), h + cap), "white")
     d = ImageDraw.Draw(strip)
@@ -112,33 +178,32 @@ def task_strip(task_ids, labels, name="tasks.png", width=1400):
 # -- filmstrip of a real, scored rollout --------------------------------------
 
 
-def rollout_strip(task_id: str, name: str, n_frames=5, seed=0, width=1600):
+def rollout_strip(task_id: str, name: str, n_frames=4, seed=0, width=1600):
+    """Four panels, not more: the strip is ~880px wide once GitHub scales it, so
+    every extra panel shrinks the robot. Four still tells it — at rest, reaching,
+    carrying, done."""
     spec, model = load(task_id)
-    data = mujoco.MjData(model)
-    if spec.reset_randomization is not None:
-        from mjhri.tasks.randomize import apply_randomization
-        apply_randomization(model, data, spec.reset_randomization,
-                            rng=np.random.default_rng(seed))
-    mujoco.mj_forward(model, data)
 
-    picks = plan_from_taskspec(model, data, spec)
-    targets = {b: list(p) for _g, p, b in picks}
-    policy = SO_ARM100.controller(model).set_plan(picks)
-    grasp = SO_ARM100.grasp(model, place_targets=targets)
-    grasp.reset()
+    def fresh():
+        """A rollout's starting state — identical every time, so the measuring pass
+        and the rendering pass see exactly the same motion."""
+        data = mujoco.MjData(model)
+        if spec.reset_randomization is not None:
+            from mjhri.tasks.randomize import apply_randomization
+            apply_randomization(model, data, spec.reset_randomization,
+                                rng=np.random.default_rng(seed))
+        mujoco.mj_forward(model, data)
+        picks = plan_from_taskspec(model, data, spec)
+        targets = {b: list(p) for _g, p, b in picks}
+        policy = SO_ARM100.controller(model).set_plan(picks)
+        grasp = SO_ARM100.grasp(model, place_targets=targets)
+        grasp.reset()
+        return data, policy, grasp
 
-    cam, opt = camera(), mujoco.MjvOption()
-    mujoco.mjv_defaultOption(opt)
     dt, ci = float(model.opt.timestep), 1.0 / 30.0
-    end = float(getattr(policy, "duration", 6.0)) + 1.0
-    grab = [end * k / (n_frames - 1) for k in range(n_frames - 1)] + [end]
-    frames, gi = [], 0
 
-    with mujoco.Renderer(model, height=H, width=W) as r:
-        def shot(t):
-            r.update_scene(data, camera=cam, scene_option=opt)
-            frames.append((t, Image.fromarray(r.render())))
-
+    def simulate(data, policy, grasp, end, at=None):
+        """Step to ``end``, calling ``at(t)`` when each scheduled moment is reached."""
         ctrl = np.asarray(policy.initial_ctrl()).reshape(-1)
         last, t = -1.0, 0.0
         while t < end:
@@ -148,15 +213,52 @@ def rollout_strip(task_id: str, name: str, n_frames=5, seed=0, width=1600):
             data.ctrl[:] = ctrl
             mujoco.mj_step(model, data)
             grasp.update(model, data, t)
-            if gi < len(grab) and t >= grab[gi]:
-                shot(t)
-                gi += 1
+            if at:
+                at(t)
             t += dt
         for _ in range(200):          # settle, exactly as rollout_once does
             mujoco.mj_step(model, data)
             grasp.update(model, data, end)
+        if at:
+            at(end)
+
+    # Pass 1 — physics only, to learn how far the arm travels. Framing each panel
+    # independently would make the camera breathe between frames; framing on the
+    # start pose alone would clip the arm at full reach. So measure the whole motion
+    # once (cheap, no rendering) and hold that frame fixed for every panel.
+    data, policy, grasp = fresh()
+    end = float(getattr(policy, "duration", 6.0)) + 1.0
+    lo = np.full(3, np.inf)
+    hi = np.full(3, -np.inf)
+
+    def measure(_t):
+        nonlocal lo, hi
+        a, b = visible_bounds(model, data)
+        lo, hi = np.minimum(lo, a), np.maximum(hi, b)
+
+    simulate(data, policy, grasp, end, at=measure)
+
+    # Pass 2 — the same rollout again, rendered through that fixed camera.
+    data, policy, grasp = fresh()
+    cam = iso_camera(model, lo, hi, (W, H), pad=1.04)
+    opt = mujoco.MjvOption()
+    mujoco.mjv_defaultOption(opt)
+    grab = [end * k / (n_frames - 1) for k in range(n_frames - 1)] + [end]
+    frames, gi = [], 0
+
+    with mujoco.Renderer(model, height=H, width=W) as r:
+        def shot(t):
+            r.update_scene(data, camera=cam, scene_option=opt)
+            frames.append((t, Image.fromarray(r.render())))
+
+        def maybe_shoot(t):
+            nonlocal gi
+            if gi < len(grab) and t >= grab[gi]:
+                shot(t)
+                gi += 1
+
+        simulate(data, policy, grasp, end, at=maybe_shoot)
         outcome = Scorer.from_spec(spec).score(model, data)
-        shot(end)
 
     frames = frames[-n_frames:]
     pad, top, bot = 6, 40, 30
