@@ -18,25 +18,62 @@ is a no-op. If you already have Menagerie locally, point at it instead:
 from __future__ import annotations
 
 import argparse
-import json
 import shutil
 import sys
+import time
 import urllib.error
 import urllib.request
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 REPO = "google-deepmind/mujoco_menagerie"
 MODEL = "trs_so_arm100"
 RAW = f"https://raw.githubusercontent.com/{REPO}/main/{MODEL}"
-API = f"https://api.github.com/repos/{REPO}/contents/{MODEL}"
 DEST = Path(__file__).parent / "scenes"
 TIMEOUT = 60
 
 
-def _get(url: str) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": "mjhri-fetch-assets"})
-    with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
-        return r.read()
+def _get(url: str, retries: int = 3) -> bytes:
+    """GET with a short backoff, so one flaky response does not fail the whole fetch."""
+    headers = {"User-Agent": "mjhri-fetch-assets"}
+    last: Exception | None = None
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+                return r.read()
+        except urllib.error.HTTPError as exc:
+            last = exc
+            if exc.code in (403, 429):        # rate limited — backing off will not help much
+                raise
+            if exc.code < 500:
+                raise
+        except urllib.error.URLError as exc:
+            last = exc
+        if attempt < retries - 1:
+            time.sleep(2 ** attempt)
+    raise last  # type: ignore[misc]
+
+
+def _mesh_names(xml_text: str) -> list[str]:
+    """Mesh filenames referenced by the model, read from the model itself.
+
+    Listing the directory would mean calling the GitHub *API*, which is rate-limited
+    per IP and unauthenticated by default — that fails on shared/NAT'd networks
+    (university proxies, CI runners) with a 403 that has nothing to do with the user.
+    raw.githubusercontent.com is a CDN with no such limit, and the XML already names
+    every file it needs, so parse it and fetch those directly.
+    """
+    names: list[str] = []
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return names
+    for mesh in root.iter("mesh"):
+        f = mesh.get("file")
+        if f and f not in names:
+            names.append(f)
+    return names
 
 
 def _copy_local(src_root: Path) -> int:
@@ -58,18 +95,22 @@ def _download() -> int:
     DEST.mkdir(parents=True, exist_ok=True)
     (DEST / "assets").mkdir(exist_ok=True)
     print(f"fetching {MODEL} from {REPO} …")
-    (DEST / "so_arm100.xml").write_bytes(_get(f"{RAW}/so_arm100.xml"))
+    xml = _get(f"{RAW}/so_arm100.xml")
+    (DEST / "so_arm100.xml").write_bytes(xml)
     try:
         (DEST / "so_arm100_LICENSE").write_bytes(_get(f"{RAW}/LICENSE"))
     except urllib.error.HTTPError:
         pass
-    listing = json.loads(_get(f"{API}/assets").decode("utf-8"))
-    meshes = [e for e in listing if e.get("type") == "file"]
-    for i, entry in enumerate(meshes, 1):
-        out = DEST / "assets" / entry["name"]
+
+    meshes = _mesh_names(xml.decode("utf-8"))
+    if not meshes:
+        sys.exit("error: could not read any mesh names from so_arm100.xml — "
+                 "pass --from <mujoco_menagerie checkout> instead")
+    for i, name in enumerate(meshes, 1):
+        out = DEST / "assets" / name
         if not out.exists():
-            out.write_bytes(_get(entry["download_url"]))
-        print(f"  [{i}/{len(meshes)}] {entry['name']}", end="\r", flush=True)
+            out.write_bytes(_get(f"{RAW}/assets/{name}"))
+        print(f"  [{i}/{len(meshes)}] {name}", end="\r", flush=True)
     print()
     return len(meshes)
 
