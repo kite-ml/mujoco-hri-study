@@ -266,6 +266,7 @@ run does not mean you exercised them. CI fetches them.
 | [`docs/make_media.py`](docs/make_media.py) | regenerates every figure in this README |
 | [`ROADMAP.md`](ROADMAP.md) | where this is going, and what it will not become |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | setup, house rules, adding a robot profile |
+| [`RELEASING.md`](RELEASING.md) | cutting a release to PyPI |
 | [`CITATION.cff`](CITATION.cff) | how to cite |
 
 ## Citing

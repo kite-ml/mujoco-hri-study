@@ -1,0 +1,87 @@
+name: Publish
+
+# Releases to PyPI via Trusted Publishing (OIDC): GitHub proves this workflow's
+# identity to PyPI directly, so there is no API token to store, leak, or rotate.
+# One-time setup is on PyPI's side — see RELEASING.md.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Where to publish
+        type: choice
+        options: [testpypi, pypi]
+        default: testpypi
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Never publish something that does not pass its own tests. The scene-backed
+      # tests skip without the robot meshes, so fetch them and run for real.
+      - name: Install and test
+        run: |
+          pip install -e ".[dev]"
+          python examples/teaching-trust-study/fetch_assets.py
+          pytest -q
+
+      - name: Version must match the tag
+        if: github.event_name == 'release'
+        run: |
+          python - <<'PY'
+          import os, re, sys, tomllib, pathlib
+          version = tomllib.loads(pathlib.Path("pyproject.toml").read_text())["project"]["version"]
+          tag = os.environ["TAG"].lstrip("v")
+          if version != tag:
+              sys.exit(f"pyproject version {version!r} != release tag {tag!r} — "
+                       "bump pyproject.toml, src/mjhri/__init__.py and CITATION.cff together")
+          print(f"version {version} matches tag {tag}")
+          PY
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+
+      - name: Build
+        run: |
+          pip install build twine
+          python -m build
+          twine check dist/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Publish to ${{ github.event_name == 'release' && 'PyPI' || inputs.target }}
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi          # must match the environment named in the PyPI publisher
+    permissions:
+      id-token: write          # required for Trusted Publishing; do not remove
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to TestPyPI
+        if: github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+      - name: Publish to PyPI
+        if: github.event_name == 'release' || inputs.target == 'pypi'
+        uses: pypa/gh-action-pypi-publish@release/v1
