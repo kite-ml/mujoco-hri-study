@@ -30,7 +30,10 @@ STUDY = ROOT / "examples" / "teaching-trust-study"
 OUT = ROOT / "docs" / "media"
 
 W, H = 560, 460
-CAM = dict(azimuth=250, elevation=-34, distance=0.60, lookat=(0.0, -0.12, 0.04))
+# Azimuth 70 looks at the arm's FRONT — the side the gripper opens toward and the
+# side the task objects are laid out on. The opposite view (250) frames the same
+# scene but from behind the shoulder, where the wrist housings hide the jaws.
+CAM = dict(azimuth=70, elevation=-34, distance=0.60, lookat=(0.0, -0.12, 0.04))
 # The pose the arm holds while a scene is shown at rest — the same ready pose the
 # controller seeds its IK from, so a still frame matches where a rollout starts.
 READY = dict(zip(SO_ARM100.arm_joints, SO_ARM100.ready_arm or ()))
@@ -90,7 +93,7 @@ def still(task_id: str, size=(900, 620), **cam_over) -> Image.Image:
 
 
 def task_strip(task_ids, labels, name="tasks.png", width=1400):
-    imgs = [still(t, azimuth=250, elevation=-38, distance=0.66,
+    imgs = [still(t, azimuth=70, elevation=-38, distance=0.66,
                   lookat=(0.0, -0.13, 0.03)) for t in task_ids]
     w, h, pad, cap = imgs[0].width, imgs[0].height, 8, 34
     strip = Image.new("RGB", (w * len(imgs) + pad * (len(imgs) - 1), h + cap), "white")
