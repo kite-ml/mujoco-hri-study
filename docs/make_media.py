@@ -30,9 +30,9 @@ ROOT = Path(__file__).resolve().parent.parent
 STUDY = ROOT / "examples" / "teaching-trust-study"
 OUT = ROOT / "docs" / "media"
 
-#: Filmstrip panels. Landscape, because the frame has to hold the arm's whole
-#: horizontal sweep — a squarer panel just adds empty floor above and below it.
-W, H = 700, 470
+#: Panel height in pixels. The width is not fixed — ``iso_frame`` derives it from the
+#: content so the crop is tight in both directions instead of padding to a guess.
+PANEL_H = 520
 # True isometric: an orthographic projection at 45° azimuth and the isometric
 # elevation, atan(1/√2) ≈ 35.264°, which is what makes the floor grid read as even
 # diamonds and keeps equal lengths equal anywhere in frame. Azimuth 45 puts the
@@ -87,8 +87,14 @@ def visible_bounds(model, data):
     return lo, hi
 
 
-def iso_camera(model, lo, hi, size, pad=1.06):
-    """An isometric camera framed to contain ``lo``..``hi`` exactly.
+def iso_frame(model, lo, hi, height=PANEL_H, pad=1.02, max_aspect=2.0):
+    """An isometric camera framed tight to ``lo``..``hi``, and the panel size to match.
+
+    Returns ``(cam, (width, height))``. The panel's aspect is derived from the content
+    rather than fixed in advance: a frame that must satisfy both the content's width
+    and its height leaves slack in whichever dimension is not binding, and that slack
+    is empty floor. Sizing the panel to the content removes it, which is the whole
+    difference between the robot filling the frame and floating in it.
 
     MuJoCo reads ``vis.global_.fovy`` as **degrees for a perspective camera but a
     length for an orthographic one** — it is the height of the view volume in metres,
@@ -111,15 +117,19 @@ def iso_camera(model, lo, hi, size, pad=1.06):
                         for y in (lo[1], hi[1]) for z in (lo[2], hi[2])]) - center
     half_w = float(np.max(np.abs(corners @ right)))
     half_h = float(np.max(np.abs(corners @ up)))
-    aspect = size[0] / size[1]
-    model.vis.global_.fovy = max(2 * half_h, 2 * half_w / aspect) * pad
+
+    # Panel shaped like the content, within reason — an unbounded aspect would turn a
+    # wide sweep into a letterbox slot too short to read.
+    aspect = min(max(half_w / half_h, 0.75), max_aspect)
+    width = int(round(height * aspect))
+    model.vis.global_.fovy = max(2 * half_h, 2 * half_w / (width / height)) * pad
 
     cam = mujoco.MjvCamera()
     mujoco.mjv_defaultCamera(cam)
     cam.azimuth, cam.elevation = ISO_AZIMUTH, ISO_ELEVATION
     cam.lookat[:] = center
     cam.distance = float(np.max(hi - lo)) * 4      # clear of the scene; not a zoom
-    return cam
+    return cam, (width, height)
 
 
 # -- still frames of each task ------------------------------------------------
@@ -142,10 +152,10 @@ def settled(task_id: str):
     return model, data
 
 
-def still(task_id: str, size=(760, 640), bounds=None) -> Image.Image:
+def still(task_id: str, bounds=None) -> Image.Image:
     model, data = settled(task_id)
     lo, hi = bounds if bounds is not None else visible_bounds(model, data)
-    cam = iso_camera(model, lo, hi, size)
+    cam, size = iso_frame(model, lo, hi)
     with mujoco.Renderer(model, height=size[1], width=size[0]) as r:
         r.update_scene(data, camera=cam)
         return Image.fromarray(r.render())
@@ -178,10 +188,7 @@ def task_strip(task_ids, labels, name="tasks.png", width=1400):
 # -- filmstrip of a real, scored rollout --------------------------------------
 
 
-def rollout_strip(task_id: str, name: str, n_frames=4, seed=0, width=1600):
-    """Four panels, not more: the strip is ~880px wide once GitHub scales it, so
-    every extra panel shrinks the robot. Four still tells it — at rest, reaching,
-    carrying, done."""
+def rollout_strip(task_id: str, name: str, n_frames=5, seed=0, width=1800):
     spec, model = load(task_id)
 
     def fresh():
@@ -240,7 +247,7 @@ def rollout_strip(task_id: str, name: str, n_frames=4, seed=0, width=1600):
 
     # Pass 2 — the same rollout again, rendered through that fixed camera.
     data, policy, grasp = fresh()
-    cam = iso_camera(model, lo, hi, (W, H), pad=1.04)
+    cam, (W, H) = iso_frame(model, lo, hi)
     opt = mujoco.MjvOption()
     mujoco.mjv_defaultOption(opt)
     grab = [end * k / (n_frames - 1) for k in range(n_frames - 1)] + [end]
