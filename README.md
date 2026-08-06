@@ -4,16 +4,16 @@
 jsPsych/PsychoPy, but for studies where the participant teaches a robot.
 
 [![CI](https://github.com/kite-ml/mujoco-hri-study/actions/workflows/ci.yml/badge.svg)](https://github.com/kite-ml/mujoco-hri-study/actions/workflows/ci.yml)
-[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](pyproject.toml)
-[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://github.com/kite-ml/mujoco-hri-study/blob/main/pyproject.toml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green)](https://github.com/kite-ml/mujoco-hri-study/blob/main/LICENSE)
 
 A study is **data** — conditions, phase sequences, counterbalancing, survey
 instruments, tasks, success criteria. `mjhri` runs the protocol and records the
 event log. You supply the interface. Nothing is sent anywhere.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/media/architecture-dark.svg">
-  <img alt="mjhri architecture: study data feeds the engine, the engine drives your UI, everything lands in the event log" src="docs/media/architecture-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kite-ml/mujoco-hri-study/main/docs/media/architecture-dark.svg">
+  <img alt="mjhri architecture: study data feeds the engine, the engine drives your UI, everything lands in the event log" src="https://raw.githubusercontent.com/kite-ml/mujoco-hri-study/main/docs/media/architecture-light.svg">
 </picture>
 
 ---
@@ -82,11 +82,11 @@ python examples/quickstart.py
 These are real rollouts, rendered headlessly on a laptop CPU. The verdict in the
 corner is the task's own `Scorer` reading the final physics state — not a caption.
 
-![A scored place rollout: the arm reaches, grasps the block, and drops it in the bin](docs/media/rollout-place.png)
+![A scored place rollout: the arm reaches, grasps the block, and drops it in the bin](https://raw.githubusercontent.com/kite-ml/mujoco-hri-study/main/docs/media/rollout-place.png)
 
-![A scored stack rollout: the arm builds a three-block tower](docs/media/rollout-stack.png)
+![A scored stack rollout: the arm builds a three-block tower](https://raw.githubusercontent.com/kite-ml/mujoco-hri-study/main/docs/media/rollout-stack.png)
 
-Regenerate both with [`docs/make_media.py`](docs/make_media.py). If a rollout fails,
+Regenerate both with [`docs/make_media.py`](https://github.com/kite-ml/mujoco-hri-study/blob/main/docs/make_media.py). If a rollout fails,
 the figure says FAILURE — the images cannot drift from what the code does.
 
 ## What it does
@@ -221,7 +221,7 @@ register_robot(RobotProfile(
 three teaching modalities × three tasks × two difficulties, with scenes, task specs,
 and success criteria.
 
-![The three bundled tasks: place, sort, and stack](docs/media/tasks.png)
+![The three bundled tasks: place, sort, and stack](https://raw.githubusercontent.com/kite-ml/mujoco-hri-study/main/docs/media/tasks.png)
 
 | Task | Medium | Hard |
 | --- | --- | --- |
@@ -262,16 +262,16 @@ run does not mean you exercised them. CI fetches them.
 
 | | |
 | --- | --- |
-| [`examples/quickstart.py`](examples/quickstart.py) | a whole study in one file |
-| [`docs/make_media.py`](docs/make_media.py) | regenerates every figure in this README |
-| [`ROADMAP.md`](ROADMAP.md) | where this is going, and what it will not become |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | setup, house rules, adding a robot profile |
-| [`RELEASING.md`](RELEASING.md) | cutting a release to PyPI |
-| [`CITATION.cff`](CITATION.cff) | how to cite |
+| [`examples/quickstart.py`](https://github.com/kite-ml/mujoco-hri-study/blob/main/examples/quickstart.py) | a whole study in one file |
+| [`docs/make_media.py`](https://github.com/kite-ml/mujoco-hri-study/blob/main/docs/make_media.py) | regenerates every figure in this README |
+| [`ROADMAP.md`](https://github.com/kite-ml/mujoco-hri-study/blob/main/ROADMAP.md) | where this is going, and what it will not become |
+| [`CONTRIBUTING.md`](https://github.com/kite-ml/mujoco-hri-study/blob/main/CONTRIBUTING.md) | setup, house rules, adding a robot profile |
+| [`RELEASING.md`](https://github.com/kite-ml/mujoco-hri-study/blob/main/RELEASING.md) | cutting a release to PyPI |
+| [`CITATION.cff`](https://github.com/kite-ml/mujoco-hri-study/blob/main/CITATION.cff) | how to cite |
 
 ## Citing
 
-If you use this in published research, please cite it — see [`CITATION.cff`](CITATION.cff),
+If you use this in published research, please cite it — see [`CITATION.cff`](https://github.com/kite-ml/mujoco-hri-study/blob/main/CITATION.cff),
 or use GitHub's "Cite this repository" button.
 
 ## License
