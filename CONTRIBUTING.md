@@ -26,7 +26,8 @@ Most valuable, roughly in order:
 - **New success criteria.** `in_region` and `stack` cover a lot but not
   everything. Criteria are small, self-contained, and testable against a
   ten-line MuJoCo scene.
-- **Instruments.** Validated HRI scales as `Instrument` JSON, with a citation.
+- **Instruments.** Validated HRI scales as `Instrument` JSON. Every instrument must
+  declare its provenance in `metadata` — see [Instruments](#instruments) below.
 - **`EventLog` backends** for stores people actually use.
 
 ## House rules
@@ -61,6 +62,38 @@ register_robot(MY_ARM)
 Then prove it: `MY_ARM.require(model)` on your scene, and a test in the shape of
 `test_profile_solves_place` showing a planned pick-and-place actually succeeds.
 A profile that has not completed a task is a guess.
+
+## Instruments
+
+Every built-in instrument declares where it came from, in `metadata`. This is
+enforced by `tests/test_instrument_provenance.py`, for two reasons.
+
+**Attribution.** Some scales are free to use *on the condition that the source is
+acknowledged* — the System Usability Scale is the case in point (© Digital Equipment
+Corporation, 1986). Shipping the items without that notice would put every
+downstream user out of compliance without them knowing.
+
+**Validity.** `builtin_ids()` lists a validated 10-item scale next to a two-item
+measure written for one study, and they look equally official. A researcher has to
+be able to tell which is which — and an adapted scale has to say what changed, because
+psychometric properties do not transfer just because the items look familiar.
+
+So a new instrument carries:
+
+```jsonc
+"metadata": {
+  "instrument": "What it is. Add 'ADAPTED.' if you reworded a published scale,
+                 or 'Study-defined … Not a published scale.' if you wrote it.",
+  "citation":   "Full reference, if it derives from published work.",
+  "attribution": "Any notice the licence requires you to carry.",
+  "adaptation": "What you changed, and how to report it.",
+  "scale":      "Response format — required for anything rated.",
+  "scoring":    "How to aggregate, including reverse-coded items."
+}
+```
+
+Then add its id to `PUBLISHED` or `STUDY_DEFINED` in the provenance test. That test
+fails on any instrument it has not been told about, so nothing ships bare.
 
 ## Pull requests
 

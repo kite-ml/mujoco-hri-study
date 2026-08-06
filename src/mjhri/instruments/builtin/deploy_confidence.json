@@ -3,6 +3,7 @@
   "title": "Deploy decision",
   "description": "Based on what you have seen, decide whether you would deploy this policy on a real robot, and how confident you are.",
   "metadata": {
+    "instrument": "Study-defined behavioural-intention measure. Not a published scale.",
     "note": "The deploy decision is a key dependent variable; capture it BEFORE revealing the objective success rate.",
     "scale": "choice + 0-100 confidence"
   },

@@ -3,7 +3,10 @@
   "title": "System Usability Scale",
   "description": "Rate your agreement with each statement about teaching the robot this way (1 = strongly disagree, 5 = strongly agree).",
   "metadata": {
-    "instrument": "System Usability Scale (Brooke 1996), 10 items, alternating tone.",
+    "instrument": "System Usability Scale (SUS), 10 items, alternating tone. ADAPTED.",
+    "citation": "Brooke, J. (1996). SUS: A 'quick and dirty' usability scale. In P. W. Jordan, B. Thomas, B. A. Weerdmeester, & I. L. McClelland (Eds.), Usability Evaluation in Industry (pp. 189-194). London: Taylor & Francis.",
+    "attribution": "System Usability Scale © Digital Equipment Corporation, 1986. SUS is made freely available for research and commercial use on the condition that the source is acknowledged; this notice is that acknowledgement, and anyone redistributing or publishing with this instrument should carry it too.",
+    "adaptation": "The referent noun is changed from 'the system' to 'this teaching method' throughout, so the scale reads sensibly when the thing being rated is a way of teaching a robot rather than a piece of software. Item order, count, tone alternation, and 5-point response format are unchanged. Substituting the referent is common practice, but the adapted wording is not itself separately validated — report results as SUS adapted from Brooke (1996), not as SUS.",
     "scale": "5-point Likert (1=strongly disagree, 5=strongly agree)",
     "note": "Standard SUS scoring: odd items score (x-1), even items score (5-x); sum x 2.5 gives the 0-100 SUS score. Even items are flagged reverse=true."
   },

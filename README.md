@@ -135,10 +135,26 @@ class PostgresEventLog(EventLog):
     def query(self, participant_id=None): ...
 ```
 
-### 4. Instruments — validated scales as renderer-agnostic JSON
+### 4. Instruments — scales as renderer-agnostic JSON, with their provenance
 
 `trust_scale`, `nasa_tlx`, `sus`, `control_steer_effort`, `deploy_confidence`, and
 two embedded attention checks ship built in. Load your own with `load_dir()`.
+
+Every instrument states where it came from, so you can cite what you administered:
+
+```python
+get_instrument("sus").metadata["citation"]
+# "Brooke, J. (1996). SUS: A 'quick and dirty' usability scale. …"
+get_instrument("sus").metadata["adaptation"]
+# "The referent noun is changed from 'the system' to 'this teaching method' …"
+```
+
+Two things that matter for a write-up. `sus` and `trust_scale` are **adapted** —
+reworded for a robot-teaching context — so report them as adapted from their source,
+not as the original instrument. And `control_steer_effort` and `deploy_confidence`
+are **study-defined**, not published scales; their `metadata["instrument"]` says so.
+The SUS attribution notice (© Digital Equipment Corporation, 1986) travels with the
+instrument because its terms require it.
 
 ### 5. Scoring — geometric success on *any* MuJoCo scene
 
